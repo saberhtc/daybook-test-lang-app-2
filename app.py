@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from db import init_db
 from auth import router as auth_router
+from words import router as words_router
 
 
 @asynccontextmanager
@@ -32,6 +33,7 @@ async def health():
 
 
 app.include_router(auth_router)
+app.include_router(words_router)
 
 if os.path.isdir("static"):
     app.mount("/", StaticFiles(directory="static", html=True), name="static")
