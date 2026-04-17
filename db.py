@@ -69,11 +69,16 @@ async def init_db():
     await db.close()
 
 
+_initialized_path: str | None = None
+
+
 async def get_db() -> aiosqlite.Connection:
-    path = get_db_path()
-    if os.path.dirname(path):
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-    db = await aiosqlite.connect(path)
+    global _initialized_path
+    current_path = get_db_path()
+    if _initialized_path != current_path:
+        await init_db()
+        _initialized_path = current_path
+    db = await aiosqlite.connect(current_path)
     db.row_factory = aiosqlite.Row
     await db.execute("PRAGMA journal_mode=WAL")
     await db.execute("PRAGMA foreign_keys = ON")

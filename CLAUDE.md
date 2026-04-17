@@ -171,9 +171,9 @@ No deliveries yet.
 
 ## Your task
 
-Read the spec file at: /Users/saber/Development/daybook-test-lang-app-2/.daybook/specs/01-foundation/1-db/spec.md
+Read the spec file at: /Users/saber/Development/daybook-test-lang-app-2/.daybook/specs/02-core/03-words/spec.md
 Build everything it requires in this worktree.
-Use port 8100 for any servers. Database at /tmp/daybook-runs/96f2b420/app.db.
+Use port 8100 for any servers. Database at /tmp/daybook-runs/d3191c47/app.db.
 
 ## Acceptance command rules
 
@@ -236,9 +236,9 @@ If you simplify anything, you MUST explain what and why in
 
 ## Environment (set by Daybook — use these)
 
-DB_PATH=/tmp/daybook-runs/96f2b420/app.db — your database goes here
+DB_PATH=/tmp/daybook-runs/d3191c47/app.db — your database goes here
 PORT=8100 — use this for any servers
-TEMP_DIR=/tmp/daybook-runs/96f2b420/tmp — use this for temporary files
+TEMP_DIR=/tmp/daybook-runs/d3191c47/tmp — use this for temporary files
 
 Read these with os.environ.get('DB_PATH', ...) in your code.
 The verifier will test your code with DIFFERENT values for these.
@@ -249,6 +249,9 @@ If your code ignores these env vars, verification will fail.
 A cheap pre-screen produced these observations. Consider them but
 use your own judgment — the spec is the source of truth.
 
-- Risk: medium
-- Reason: Proceeding by default (Triage timed out after 30s)
-- Phase alignment: current=unknown, spec=unknown, aligned=True
+- Risk: low
+- Reason: Spec 03-words is the first Phase 2 spec and all Phase 1 dependencies (01-database, 02-auth) have been successfully delivered. Requirements are clear and acceptance criteria is well-defined.
+- Phase alignment: current=Phase 2: Core features (parallel), spec=Phase 2, spec 03-words, aligned=True
+- Suggestions:
+  - Spec should explicitly include CREATE TABLE statements for decks and words tables (or reference which tables/schema from 01-database are required)
+  - Consider documenting that user_id must be enforced on deck queries for access control (prevent users from accessing other users' decks)
