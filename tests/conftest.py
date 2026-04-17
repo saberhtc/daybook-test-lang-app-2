@@ -15,11 +15,20 @@ def set_test_db(tmp_path):
 
 
 @pytest_asyncio.fixture
+async def test_db(set_test_db):
+    from db import init_db, get_db
+    await init_db()
+    db = await get_db()
+    yield db
+    await db.close()
+
+
+@pytest_asyncio.fixture
 async def client(set_test_db):
     from app import app
     from db import init_db
 
-    init_db()
+    await init_db()
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac

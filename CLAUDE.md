@@ -171,9 +171,9 @@ No deliveries yet.
 
 ## Your task
 
-Read the spec file at: /Users/saber/Development/daybook-test-lang-app-2/.daybook/specs/01-foundation/02-auth/spec.md
+Read the spec file at: /Users/saber/Development/daybook-test-lang-app-2/.daybook/specs/01-foundation/1-db/spec.md
 Build everything it requires in this worktree.
-Use port 8100 for any servers. Database at /tmp/daybook-runs/d5abd8af/app.db.
+Use port 8100 for any servers. Database at /tmp/daybook-runs/96f2b420/app.db.
 
 ## Acceptance command rules
 
@@ -236,9 +236,9 @@ If you simplify anything, you MUST explain what and why in
 
 ## Environment (set by Daybook — use these)
 
-DB_PATH=/tmp/daybook-runs/d5abd8af/app.db — your database goes here
+DB_PATH=/tmp/daybook-runs/96f2b420/app.db — your database goes here
 PORT=8100 — use this for any servers
-TEMP_DIR=/tmp/daybook-runs/d5abd8af/tmp — use this for temporary files
+TEMP_DIR=/tmp/daybook-runs/96f2b420/tmp — use this for temporary files
 
 Read these with os.environ.get('DB_PATH', ...) in your code.
 The verifier will test your code with DIFFERENT values for these.
