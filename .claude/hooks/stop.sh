@@ -1,0 +1,1 @@
+/Users/saber/Development/daybook-test-lang-app-2/.daybook/hooks/stop.sh
