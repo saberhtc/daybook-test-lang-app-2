@@ -1,4 +1,5 @@
 import random
+from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -84,6 +85,20 @@ async def answer_quiz(
     await db.execute(
         "INSERT INTO quiz_attempts (user_id, word_id, correct) VALUES (?, ?, ?)",
         (current_user["id"], body.word_id, 1 if correct else 0),
+    )
+
+    today = date.today().isoformat()
+    correct_int = 1 if correct else 0
+    await db.execute(
+        """
+        INSERT INTO daily_streaks (user_id, date, quizzes_completed, correct_count, total_count)
+        VALUES (?, ?, 1, ?, 1)
+        ON CONFLICT(user_id, date) DO UPDATE SET
+            quizzes_completed = quizzes_completed + 1,
+            correct_count = correct_count + ?,
+            total_count = total_count + 1
+        """,
+        (current_user["id"], today, correct_int, correct_int),
     )
     await db.commit()
 

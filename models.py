@@ -85,3 +85,20 @@ class QuizWordStat(BaseModel):
     times_correct: int
     times_wrong: int
     mastered: bool
+
+
+class ProgressStats(BaseModel):
+    total_words: int
+    mastered_words: int
+    total_quizzes: int
+    overall_accuracy_pct: float
+    current_streak_days: int
+    longest_streak_days: int
+
+
+class DailyActivity(BaseModel):
+    date: str
+    quizzes_completed: int
+    correct_count: int
+    total_count: int
+    accuracy_pct: float

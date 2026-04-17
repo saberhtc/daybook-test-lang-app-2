@@ -9,6 +9,7 @@ from db import init_db
 from auth import router as auth_router
 from words import router as words_router
 from quiz import router as quiz_router
+from progress import router as progress_router
 
 
 @asynccontextmanager
@@ -36,6 +37,7 @@ async def health():
 app.include_router(auth_router)
 app.include_router(words_router)
 app.include_router(quiz_router)
+app.include_router(progress_router)
 
 if os.path.isdir("static"):
     app.mount("/", StaticFiles(directory="static", html=True), name="static")
