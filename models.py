@@ -54,3 +54,34 @@ class WordResponse(BaseModel):
     times_wrong: int
     mastered: bool
     created_at: str
+
+
+class QuizStart(BaseModel):
+    deck_id: int
+    count: int = 10
+
+
+class QuizCard(BaseModel):
+    card_id: int
+    prompt: str
+    direction: str
+
+
+class QuizAnswer(BaseModel):
+    word_id: int
+    answer: str
+
+
+class QuizResult(BaseModel):
+    correct: bool
+    expected: str
+    word_id: int
+
+
+class QuizWordStat(BaseModel):
+    word_id: int
+    term: str
+    translation: str
+    times_correct: int
+    times_wrong: int
+    mastered: bool
