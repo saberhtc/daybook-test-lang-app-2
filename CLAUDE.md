@@ -171,9 +171,9 @@ No deliveries yet.
 
 ## Your task
 
-Read the spec file at: /Users/saber/Development/daybook-test-lang-app-2/.daybook/specs/02-core/04-quiz/spec.md
+Read the spec file at: /Users/saber/Development/daybook-test-lang-app-2/.daybook/specs/02-core/05-progress/spec.md
 Build everything it requires in this worktree.
-Use port 8100 for any servers. Database at /tmp/daybook-runs/fe6db581/app.db.
+Use port 8100 for any servers. Database at /tmp/daybook-runs/1088c45c/app.db.
 
 ## Acceptance command rules
 
@@ -236,9 +236,9 @@ If you simplify anything, you MUST explain what and why in
 
 ## Environment (set by Daybook — use these)
 
-DB_PATH=/tmp/daybook-runs/fe6db581/app.db — your database goes here
+DB_PATH=/tmp/daybook-runs/1088c45c/app.db — your database goes here
 PORT=8100 — use this for any servers
-TEMP_DIR=/tmp/daybook-runs/fe6db581/tmp — use this for temporary files
+TEMP_DIR=/tmp/daybook-runs/1088c45c/tmp — use this for temporary files
 
 Read these with os.environ.get('DB_PATH', ...) in your code.
 The verifier will test your code with DIFFERENT values for these.
@@ -250,5 +250,11 @@ A cheap pre-screen produced these observations. Consider them but
 use your own judgment — the spec is the source of truth.
 
 - Risk: medium
-- Reason: Proceeding by default (Triage timed out after 30s)
-- Phase alignment: current=unknown, spec=unknown, aligned=True
+- Reason: Phase 2 core feature with clear requirements, delivered dependencies (auth, words, quiz), and comprehensive acceptance tests.
+- Phase alignment: current=Phase 2: Core features (parallel), spec=Phase 2: 05-progress (final core feature before dashboard), aligned=True
+- Suggestions:
+  - Verify mastered field exists on words table from 03-words spec
+  - Explicitly document that quiz.py's POST /api/quiz/answer must be modified to update daily_streaks
+  - Clarify daily_streaks schema in requirements (user_id, date, quizzes_completed, correct_count, total_count)
+- Missing items noted:
+  - Database schema for daily_streaks table not explicitly defined

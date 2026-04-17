@@ -62,7 +62,8 @@ async def init_db():
             quizzes_completed INTEGER DEFAULT 0,
             correct_count INTEGER DEFAULT 0,
             total_count INTEGER DEFAULT 0,
-            created_at TEXT DEFAULT (datetime('now'))
+            created_at TEXT DEFAULT (datetime('now')),
+            UNIQUE(user_id, date)
         )
     """)
     await db.commit()
