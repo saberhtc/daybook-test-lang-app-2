@@ -2,61 +2,2124 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LingoDeck</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f0f1a" />
+  <title>LingoDeck — vocabulary trainer</title>
   <style>
+    :root {
+      --bg: #0f0f1a;
+      --bg-2: #14142a;
+      --card: #1a1a2e;
+      --card-2: #20203a;
+      --border: #2a2a44;
+      --border-2: #383860;
+      --accent: #6c63ff;
+      --accent-2: #8a82ff;
+      --accent-dim: #4d47bf;
+      --text: #ffffff;
+      --muted: #a0a0b0;
+      --dim: #6b6b82;
+      --good: #22c98c;
+      --good-bg: rgba(34, 201, 140, 0.12);
+      --bad: #ff5c7a;
+      --bad-bg: rgba(255, 92, 122, 0.12);
+      --warn: #ffb454;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-lg: 18px;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --ease: 200ms ease;
+      --ease-slow: 320ms cubic-bezier(.2,.7,.2,1);
+      --grad: linear-gradient(135deg, #6c63ff 0%, #8a82ff 100%);
+      --grad-flame: linear-gradient(180deg, #ffb454 0%, #ff5c7a 100%);
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #111; color: #eee; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-    .card { background: #1e1e1e; border-radius: 12px; padding: 2rem; width: 360px; }
-    h1 { font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center; }
-    input { width: 100%; padding: .6rem .8rem; margin-bottom: .75rem; border: 1px solid #333; border-radius: 6px; background: #111; color: #eee; font-size: 1rem; }
-    button { width: 100%; padding: .7rem; background: #4f8ef7; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
-    button:hover { background: #3a7ae8; }
-    .toggle { text-align: center; margin-top: 1rem; font-size: .9rem; color: #888; cursor: pointer; }
-    .toggle span { color: #4f8ef7; }
-    .msg { margin-top: .75rem; text-align: center; font-size: .9rem; color: #f87; }
+
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 0%, rgba(108, 99, 255, 0.18), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 100%, rgba(138, 130, 255, 0.10), transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; background: none; border: none; }
+    a { color: var(--accent-2); text-decoration: none; }
+
+    /* ======= App shell ======= */
+    #app { position: relative; z-index: 1; min-height: 100vh; }
+
+    .shell {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 20px 110px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      background: rgba(15, 15, 26, 0.75);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
+    }
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: var(--grad);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 6px 18px rgba(108, 99, 255, 0.4);
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+    .brand-name { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    .user-area { display: flex; align-items: center; gap: 10px; }
+    .user-chip {
+      padding: 6px 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .user-chip .avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--grad);
+      display: grid;
+      place-items: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      transition: var(--ease);
+      border: 1px solid transparent;
+    }
+    .icon-btn:hover { background: var(--card); color: var(--text); border-color: var(--border); }
+
+    /* Desktop top nav */
+    .desktop-nav { display: none; gap: 4px; }
+    .desktop-nav button {
+      padding: 8px 14px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.92rem;
+      transition: var(--ease);
+    }
+    .desktop-nav button:hover { color: var(--text); background: var(--card); }
+    .desktop-nav button.active { color: var(--text); background: var(--card-2); box-shadow: inset 0 0 0 1px var(--border-2); }
+
+    /* Mobile tab bar */
+    .tabbar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(15, 15, 26, 0.88);
+      border-top: 1px solid var(--border);
+      padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    }
+    .tabbar-inner {
+      max-width: 520px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+    }
+    .tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 8px 6px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 500;
+      transition: var(--ease);
+    }
+    .tab svg { width: 22px; height: 22px; }
+    .tab.active { color: var(--accent-2); }
+    .tab.active .tab-icon-wrap { background: rgba(108, 99, 255, 0.15); }
+    .tab-icon-wrap {
+      width: 42px; height: 28px;
+      border-radius: 999px;
+      display: grid; place-items: center;
+      transition: var(--ease);
+    }
+
+    /* ======= Screens / routing ======= */
+    .screen { display: none; animation: fadeSlide var(--ease-slow); }
+    .screen.active { display: block; }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ======= Auth screen ======= */
+    .auth-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow);
+    }
+    .auth-brand { text-align: center; margin-bottom: 24px; }
+    .auth-brand .brand-mark { width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 16px; font-size: 1.5rem; }
+    .auth-brand h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+    .auth-brand p { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--bg-2);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 22px;
+      position: relative;
+    }
+    .auth-tabs::before {
+      content: "";
+      position: absolute;
+      top: 4px; bottom: 4px; left: 4px;
+      width: calc(50% - 4px);
+      background: var(--accent);
+      border-radius: 8px;
+      transition: transform var(--ease-slow);
+      box-shadow: 0 4px 12px rgba(108, 99, 255, 0.35);
+    }
+    .auth-tabs[data-mode="register"]::before { transform: translateX(100%); }
+    .auth-tabs button {
+      padding: 10px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--muted);
+      position: relative;
+      z-index: 1;
+      transition: color var(--ease);
+    }
+    .auth-tabs button.active { color: #fff; }
+
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.95rem;
+      transition: var(--ease);
+    }
+    .input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.18);
+    }
+    .input::placeholder { color: var(--dim); }
+
+    .field-error {
+      color: var(--bad);
+      font-size: 0.8rem;
+      margin-top: 6px;
+      min-height: 1em;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px 18px;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: var(--ease);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn:hover:not(:disabled) { background: var(--accent-dim); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(108, 99, 255, 0.35); }
+    .btn:active:not(:disabled) { transform: translateY(0); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-secondary { background: var(--card-2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover:not(:disabled) { background: var(--card); border-color: var(--border-2); }
+    .btn-ghost { background: transparent; color: var(--muted); }
+    .btn-ghost:hover:not(:disabled) { background: var(--card); color: var(--text); }
+    .btn-danger { background: rgba(255, 92, 122, 0.12); color: var(--bad); border: 1px solid rgba(255, 92, 122, 0.3); }
+    .btn-danger:hover:not(:disabled) { background: rgba(255, 92, 122, 0.2); }
+    .btn-sm { padding: 8px 12px; font-size: 0.85rem; }
+    .btn-row { display: flex; gap: 10px; }
+
+    .form-error-banner {
+      padding: 10px 14px;
+      background: var(--bad-bg);
+      border: 1px solid rgba(255, 92, 122, 0.3);
+      border-radius: 10px;
+      color: var(--bad);
+      font-size: 0.88rem;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .form-error-banner.show { display: block; animation: shake 0.3s; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    /* ======= Cards ======= */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--ease);
+    }
+    .card-hover:hover { border-color: var(--border-2); transform: translateY(-2px); }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 28px 0 14px;
+    }
+    .section-head h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .section-head p.sub { color: var(--muted); font-size: 0.85rem; }
+
+    /* ======= Dashboard stats ======= */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+    .stat .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-top: 4px;
+    }
+    .stat .stat-sub { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+    .stat .stat-icon {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: rgba(108, 99, 255, 0.15);
+      color: var(--accent-2);
+      display: grid;
+      place-items: center;
+    }
+    .stat .stat-icon svg { width: 18px; height: 18px; }
+    .stat.good .stat-icon { background: var(--good-bg); color: var(--good); }
+    .stat.flame .stat-icon { background: rgba(255, 180, 84, 0.18); color: var(--warn); }
+
+    /* ======= Bar chart (CSS) ======= */
+    .chart-card { padding: 20px; }
+    .chart-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+    .chart-head h3 { font-size: 0.98rem; font-weight: 700; }
+    .chart-head .legend { color: var(--muted); font-size: 0.78rem; }
+    .bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 6px;
+      height: 120px;
+      padding: 0 2px 4px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .bar {
+      width: 100%;
+      max-width: 34px;
+      min-height: 4px;
+      background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      border-radius: 6px 6px 2px 2px;
+      transition: height var(--ease-slow);
+      position: relative;
+    }
+    .bar.empty { background: var(--border); }
+    .bar:hover { filter: brightness(1.15); }
+    .bar-label { font-size: 0.68rem; color: var(--muted); }
+    .bar-count {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* ======= Heatmap (progress screen) ======= */
+    .heatmap {
+      display: grid;
+      grid-template-columns: repeat(15, 1fr);
+      gap: 4px;
+    }
+    .heat-cell {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      transition: var(--ease);
+    }
+    .heat-cell[data-level="1"] { background: rgba(108, 99, 255, 0.25); border-color: transparent; }
+    .heat-cell[data-level="2"] { background: rgba(108, 99, 255, 0.5); border-color: transparent; }
+    .heat-cell[data-level="3"] { background: rgba(108, 99, 255, 0.75); border-color: transparent; }
+    .heat-cell[data-level="4"] { background: var(--accent); border-color: transparent; }
+    .heat-cell:hover { transform: scale(1.15); box-shadow: 0 0 0 1px var(--accent-2); }
+    .heatmap-legend {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+    .heatmap-legend .box {
+      width: 11px; height: 11px; border-radius: 3px;
+    }
+
+    /* ======= Deck / Word rows ======= */
+    .deck-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .deck-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      transition: var(--ease);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .deck-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--grad);
+      opacity: 0.9;
+    }
+    .deck-card:hover { transform: translateY(-2px); border-color: var(--border-2); box-shadow: var(--shadow); }
+    .deck-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .deck-card-name { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
+    .deck-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .lang-pair {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      color: var(--accent-2);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border: 1px solid var(--border);
+    }
+    .lang-pair svg { width: 12px; height: 12px; }
+    .word-count-pill {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .word-row {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: var(--ease);
+    }
+    .word-row:hover { border-color: var(--border-2); }
+    .word-row .word-text { flex: 1; min-width: 0; }
+    .word-row .term { font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .word-row .translation { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+    .word-actions { display: flex; gap: 6px; }
+    .word-stats {
+      display: flex;
+      gap: 8px;
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    .word-stats span { display: inline-flex; align-items: center; gap: 3px; }
+    .word-stats .ok { color: var(--good); }
+    .word-stats .bad { color: var(--bad); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-mastered { background: var(--good-bg); color: var(--good); border: 1px solid rgba(34, 201, 140, 0.3); }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--muted);
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius);
+      background: rgba(26, 26, 46, 0.4);
+    }
+    .empty-state .emoji { font-size: 2rem; margin-bottom: 10px; opacity: 0.8; }
+    .empty-state h3 { color: var(--text); font-size: 1.05rem; margin-bottom: 6px; font-weight: 600; }
+
+    /* ======= Inline forms ======= */
+    .inline-form {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 12px;
+      display: none;
+      animation: fadeSlide var(--ease);
+    }
+    .inline-form.open { display: block; }
+    .inline-form .row { display: grid; gap: 10px; }
+    .inline-form .row.two { grid-template-columns: 1fr 1fr; }
+    .inline-form .form-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .inline-form h3 { font-size: 0.95rem; margin-bottom: 12px; font-weight: 600; }
+
+    /* ======= Quiz screen ======= */
+    .quiz-config { max-width: 520px; margin: 0 auto; }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      padding: 8px 16px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: var(--ease);
+    }
+    .chip:hover { color: var(--text); border-color: var(--border-2); }
+    .chip.selected {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px rgba(108, 99, 255, 0.35);
+    }
+
+    .flashcard {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      box-shadow: var(--shadow);
+      position: relative;
+      transition: background var(--ease), border-color var(--ease);
+      overflow: hidden;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .flashcard.correct { background: linear-gradient(180deg, rgba(34, 201, 140, 0.2), var(--card)); border-color: rgba(34, 201, 140, 0.5); }
+    .flashcard.wrong { background: linear-gradient(180deg, rgba(255, 92, 122, 0.2), var(--card)); border-color: rgba(255, 92, 122, 0.5); }
+    .flashcard.flash { animation: flashPulse 420ms ease; }
+    @keyframes flashPulse {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bg-2);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .progress-bar .fill {
+      height: 100%;
+      background: var(--grad);
+      border-radius: 999px;
+      transition: width var(--ease-slow);
+    }
+
+    .prompt-term {
+      font-size: 2.1rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      word-wrap: break-word;
+    }
+    .prompt-hint {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 22px;
+    }
+    .answer-feedback {
+      text-align: center;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-top: 14px;
+      min-height: 1.4em;
+    }
+    .answer-feedback.correct { color: var(--good); }
+    .answer-feedback.wrong { color: var(--bad); }
+    .answer-feedback .expected {
+      display: block;
+      color: var(--muted);
+      font-weight: 400;
+      font-size: 0.88rem;
+      margin-top: 4px;
+    }
+
+    .quiz-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .results-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .results-score {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin: 10px 0 4px;
+    }
+    .results-sub { color: var(--muted); margin-bottom: 20px; }
+    .results-wrong-list { text-align: left; margin-top: 20px; }
+    .results-wrong-list h4 { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .wrong-item {
+      padding: 10px 12px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 0.88rem;
+    }
+    .wrong-item .your { color: var(--bad); text-decoration: line-through; }
+    .wrong-item .right { color: var(--good); }
+
+    /* ======= Progress screen extras ======= */
+    .flame-big {
+      font-size: 3rem;
+      line-height: 1;
+      display: inline-block;
+      background: var(--grad-flame);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 4px 14px rgba(255, 92, 122, 0.4));
+      animation: flicker 2s ease-in-out infinite alternate;
+    }
+    @keyframes flicker {
+      from { transform: scale(1); filter: drop-shadow(0 4px 10px rgba(255, 92, 122, 0.4)); }
+      to { transform: scale(1.06); filter: drop-shadow(0 6px 18px rgba(255, 180, 84, 0.5)); }
+    }
+
+    .mastery-bar {
+      height: 10px;
+      background: var(--bg-2);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin-top: 10px;
+    }
+    .mastery-bar .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--good), var(--accent-2));
+      transition: width 500ms cubic-bezier(.2,.7,.2,1);
+    }
+
+    /* ======= Toast ======= */
+    #toasts {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      max-width: 92vw;
+    }
+    .toast {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 10px;
+      padding: 12px 16px;
+      box-shadow: var(--shadow);
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+      animation: toastIn 240ms cubic-bezier(.2,.7,.2,1);
+      min-width: 220px;
+    }
+    .toast.success { border-left-color: var(--good); }
+    .toast.error { border-left-color: var(--bad); }
+    .toast.fading { animation: toastOut 220ms ease forwards; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+
+    /* ======= Spinner ======= */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+    .spinner-lg {
+      width: 36px; height: 36px;
+      border-width: 3px;
+      border-top-color: var(--accent-2);
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-block {
+      padding: 40px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    /* ======= Dropdown (quiz deck picker) ======= */
+    .dropdown { position: relative; }
+    .dropdown-trigger {
+      padding: 10px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--ease);
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .dropdown-trigger:hover { border-color: var(--border-2); }
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 220px;
+      background: var(--card);
+      border: 1px solid var(--border-2);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 6px;
+      z-index: 10;
+      display: none;
+    }
+    .dropdown-menu.open { display: block; animation: fadeSlide var(--ease); }
+    .dropdown-menu button {
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+      transition: var(--ease);
+    }
+    .dropdown-menu button:hover { background: var(--bg-2); }
+    .dropdown-menu .muted { color: var(--muted); padding: 8px 12px; font-size: 0.82rem; }
+
+    /* ======= Back button / screen header ======= */
+    .screen-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .back-btn {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border-radius: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: var(--ease);
+    }
+    .back-btn:hover { color: var(--text); border-color: var(--border-2); }
+    .screen-head h2 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
+    .screen-head p { color: var(--muted); font-size: 0.85rem; }
+
+    /* ======= Modal confirm ======= */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(5, 5, 12, 0.65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 90;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; animation: fadeSlide var(--ease); }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: var(--shadow);
+    }
+    .modal h3 { font-size: 1.05rem; margin-bottom: 8px; font-weight: 700; }
+    .modal p { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; }
+    .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ======= Responsive ======= */
+    @media (min-width: 720px) {
+      .stat-grid { grid-template-columns: repeat(4, 1fr); }
+      .deck-grid { grid-template-columns: repeat(2, 1fr); }
+      .desktop-nav { display: flex; }
+      .tabbar { display: none; }
+      .shell { padding-bottom: 40px; }
+      .prompt-term { font-size: 2.8rem; }
+    }
+    @media (min-width: 960px) {
+      .deck-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
   </style>
 </head>
 <body>
-<div class="card">
-  <h1>LingoDeck</h1>
-  <div id="auth-form">
-    <input id="email" type="email" placeholder="Email" />
-    <input id="name" type="text" placeholder="Name" />
-    <input id="password" type="password" placeholder="Password" />
-    <button onclick="submit()">Sign up</button>
-    <div class="toggle" onclick="toggleMode()">Already have an account? <span>Log in</span></div>
-    <div class="msg" id="msg"></div>
+  <div id="app"></div>
+  <div id="toasts" aria-live="polite"></div>
+
+  <!-- ========================= AUTH SCREEN TEMPLATE ========================= -->
+  <template id="tpl-auth">
+    <div class="auth-wrap">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <div class="brand-mark">L</div>
+          <h1>LingoDeck</h1>
+          <p>Build your vocabulary, one card at a time.</p>
+        </div>
+
+        <div class="auth-tabs" data-mode="login">
+          <button data-tab="login" class="active">Login</button>
+          <button data-tab="register">Register</button>
+        </div>
+
+        <div class="form-error-banner" id="auth-error"></div>
+
+        <form id="auth-form" novalidate>
+          <div class="field" data-only="register" style="display:none">
+            <label for="af-name">Display name</label>
+            <input class="input" id="af-name" type="text" placeholder="Jane Doe" autocomplete="name" />
+            <div class="field-error" data-err="name"></div>
+          </div>
+          <div class="field">
+            <label for="af-email">Email</label>
+            <input class="input" id="af-email" type="email" placeholder="you@example.com" autocomplete="email" required />
+            <div class="field-error" data-err="email"></div>
+          </div>
+          <div class="field">
+            <label for="af-password">Password</label>
+            <input class="input" id="af-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+            <div class="field-error" data-err="password"></div>
+          </div>
+          <button class="btn" type="submit" id="auth-submit">
+            <span class="btn-label">Login</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </template>
+
+  <!-- ========================= APP SHELL TEMPLATE ========================= -->
+  <template id="tpl-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-mark">L</div>
+          <span class="brand-name">LingoDeck</span>
+        </div>
+        <nav class="desktop-nav" id="desktop-nav">
+          <button data-route="dashboard">Dashboard</button>
+          <button data-route="decks">Decks</button>
+          <button data-route="quiz">Quiz</button>
+          <button data-route="progress">Progress</button>
+        </nav>
+        <div class="user-area">
+          <div class="user-chip">
+            <span class="avatar" id="header-avatar">?</span>
+            <span id="header-name">…</span>
+          </div>
+          <button class="icon-btn" id="logout-btn" title="Log out" aria-label="Log out">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="shell" id="main">
+      <!-- Screens inserted here -->
+    </main>
+
+    <nav class="tabbar" aria-label="Primary">
+      <div class="tabbar-inner">
+        <button class="tab" data-route="dashboard">
+          <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          Home
+        </button>
+        <button class="tab" data-route="decks">
+          <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          Decks
+        </button>
+        <button class="tab" data-route="quiz">
+          <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+          Quiz
+        </button>
+        <button class="tab" data-route="progress">
+          <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          Progress
+        </button>
+      </div>
+    </nav>
+  </template>
+
+  <!-- ========================= MODAL ========================= -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal">
+      <h3 id="modal-title">Are you sure?</h3>
+      <p id="modal-body">This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost btn-sm" id="modal-cancel">Cancel</button>
+        <button class="btn btn-danger btn-sm" id="modal-confirm">Delete</button>
+      </div>
+    </div>
   </div>
-</div>
-<script>
-  let mode = 'register';
-  function toggleMode() {
-    mode = mode === 'register' ? 'login' : 'register';
-    document.querySelector('button').textContent = mode === 'register' ? 'Sign up' : 'Log in';
-    document.querySelector('.toggle').innerHTML = mode === 'register'
-      ? 'Already have an account? <span>Log in</span>'
-      : "Don't have an account? <span>Sign up</span>";
-    document.getElementById('name').style.display = mode === 'register' ? '' : 'none';
+
+  <script>
+  /* =========================================================================
+     LingoDeck SPA — vanilla JS
+     Sections:
+       1. Constants & state
+       2. API helper (handles /api/auth, /api/decks, /api/quiz, /api/progress, Bearer token)
+       3. DOM helpers
+       4. Router
+       5. Auth screen
+       6. Shell + navigation
+       7. Dashboard
+       8. Decks + Word List
+       9. Quiz
+      10. Progress
+      11. Bootstrap
+     ========================================================================= */
+
+  // 1. Constants & state
+  const TOKEN_KEY = 'lingodeck_token';
+  const state = {
+    user: null,
+    route: 'dashboard',
+    currentDeckId: null,
+    quiz: null,   // { deckId, cards, index, answers:[{word_id, term, your, expected, correct}] }
+  };
+
+  // 2. API helper
+  function getToken() { return localStorage.getItem(TOKEN_KEY); }
+  function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+  function clearToken() { localStorage.removeItem(TOKEN_KEY); }
+
+  async function api(path, { method = 'GET', body, auth = true } = {}) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (auth) {
+      const tok = getToken();
+      if (tok) headers['Authorization'] = 'Bearer ' + tok;
+    }
+    let res;
+    try {
+      res = await fetch(path, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+    } catch (err) {
+      toast('Connection failed, please try again', 'error');
+      throw { network: true, message: 'Network error' };
+    }
+
+    let payload = null;
+    try { payload = await res.json(); } catch (_) { /* non-JSON */ }
+
+    if (res.status === 401 && auth) {
+      clearToken();
+      state.user = null;
+      renderAuth();
+      throw { unauthorized: true, message: 'Session expired' };
+    }
+    if (!res.ok) {
+      const msg = (payload && (payload.detail || payload.error)) || `Request failed (${res.status})`;
+      throw { status: res.status, message: msg };
+    }
+    return payload && 'data' in payload ? payload.data : payload;
   }
 
-  async function submit() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const name = document.getElementById('name').value;
-    const url = mode === 'register' ? '/api/auth/register' : '/api/auth/login';
-    const body = mode === 'register' ? { email, password, name } : { email, password };
-    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    const json = await r.json();
-    if (r.ok) {
-      localStorage.setItem('token', json.data.token);
-      document.getElementById('msg').style.color = '#6f6';
-      document.getElementById('msg').textContent = 'Success! Token saved.';
-    } else {
-      document.getElementById('msg').style.color = '#f87';
-      document.getElementById('msg').textContent = json.detail || json.error || 'Error';
+  // 3. DOM helpers
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  function h(tag, attrs = {}, children = []) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;
+      else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
+      else if (v === true) el.setAttribute(k, '');
+      else if (v !== false && v != null) el.setAttribute(k, v);
+    }
+    const kids = Array.isArray(children) ? children : [children];
+    kids.forEach(c => {
+      if (c == null || c === false) return;
+      el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    });
+    return el;
+  }
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function initials(name) {
+    const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '?';
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  // Toast
+  function toast(msg, kind = 'info') {
+    const t = h('div', { class: 'toast ' + kind }, [
+      h('span', { html: icon(kind) + ' ' + escapeHtml(msg) }),
+    ]);
+    $('#toasts').appendChild(t);
+    setTimeout(() => { t.classList.add('fading'); setTimeout(() => t.remove(), 260); }, 2800);
+  }
+  function icon(kind) {
+    if (kind === 'success') return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    if (kind === 'error') return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+    return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+  }
+
+  // Confirm modal
+  function confirmModal({ title = 'Are you sure?', body = 'This action cannot be undone.', confirmLabel = 'Delete' } = {}) {
+    return new Promise(resolve => {
+      const modal = $('#modal');
+      $('#modal-title').textContent = title;
+      $('#modal-body').textContent = body;
+      $('#modal-confirm').textContent = confirmLabel;
+      modal.classList.add('open');
+      const close = (result) => {
+        modal.classList.remove('open');
+        $('#modal-confirm').onclick = null;
+        $('#modal-cancel').onclick = null;
+        modal.onclick = null;
+        resolve(result);
+      };
+      $('#modal-confirm').onclick = () => close(true);
+      $('#modal-cancel').onclick = () => close(false);
+      modal.onclick = (e) => { if (e.target === modal) close(false); };
+    });
+  }
+
+  // Button busy helper
+  async function withBusy(btn, label, fn) {
+    const prev = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> ' + (label || 'Working');
+    try { return await fn(); }
+    finally {
+      btn.disabled = false;
+      btn.innerHTML = prev;
     }
   }
-</script>
+
+  // 4. Router
+  function setRoute(route, opts = {}) {
+    state.route = route;
+    if (route !== 'word-list') state.currentDeckId = opts.deckId ?? null;
+    renderShell();
+  }
+
+  // 5. Auth screen
+  function renderAuth() {
+    const app = $('#app');
+    app.innerHTML = '';
+    app.appendChild($('#tpl-auth').content.cloneNode(true));
+
+    const tabs = $('.auth-tabs');
+    const nameField = $('[data-only="register"]');
+    const submitLabel = $('#auth-submit .btn-label');
+    let mode = 'login';
+
+    function setMode(m) {
+      mode = m;
+      tabs.dataset.mode = m;
+      tabs.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.tab === m));
+      nameField.style.display = m === 'register' ? '' : 'none';
+      submitLabel.textContent = m === 'register' ? 'Create account' : 'Login';
+      clearErrors();
+    }
+
+    tabs.querySelectorAll('button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.tab)));
+
+    function clearErrors() {
+      $('#auth-error').classList.remove('show');
+      $$('.field-error').forEach(el => el.textContent = '');
+    }
+    function showErr(field, msg) {
+      const el = document.querySelector(`[data-err="${field}"]`);
+      if (el) el.textContent = msg;
+    }
+
+    $('#auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearErrors();
+      const email = $('#af-email').value.trim();
+      const password = $('#af-password').value;
+      const name = $('#af-name').value.trim();
+
+      let bad = false;
+      if (!email) { showErr('email', 'Email is required'); bad = true; }
+      else if (!/^\S+@\S+\.\S+$/.test(email)) { showErr('email', 'Enter a valid email'); bad = true; }
+      if (!password) { showErr('password', 'Password is required'); bad = true; }
+      else if (password.length < 6) { showErr('password', 'At least 6 characters'); bad = true; }
+      if (mode === 'register' && !name) { showErr('name', 'Display name is required'); bad = true; }
+      if (bad) return;
+
+      const btn = $('#auth-submit');
+      try {
+        await withBusy(btn, mode === 'register' ? 'Creating' : 'Logging in', async () => {
+          const path = mode === 'register' ? '/api/auth/register' : '/api/auth/login';
+          const body = mode === 'register' ? { email, password, name } : { email, password };
+          const data = await api(path, { method: 'POST', body, auth: false });
+          setToken(data.token);
+          await loadMe();
+          toast(mode === 'register' ? 'Welcome to LingoDeck!' : 'Welcome back!', 'success');
+          setRoute('dashboard');
+        });
+      } catch (err) {
+        if (err.network) return;
+        const banner = $('#auth-error');
+        banner.textContent = err.message || 'Something went wrong';
+        banner.classList.add('show');
+      }
+    });
+
+    setMode('login');
+  }
+
+  async function loadMe() {
+    const me = await api('/api/auth/me');
+    state.user = me;
+    return me;
+  }
+
+  // 6. Shell + navigation
+  function renderShell() {
+    const app = $('#app');
+    if (!app.querySelector('.topbar')) {
+      app.innerHTML = '';
+      app.appendChild($('#tpl-shell').content.cloneNode(true));
+      $$('#desktop-nav button, .tabbar .tab').forEach(b => {
+        b.addEventListener('click', () => setRoute(b.dataset.route));
+      });
+      $('#logout-btn').addEventListener('click', logout);
+    }
+
+    // header user
+    if (state.user) {
+      $('#header-name').textContent = state.user.display_name || state.user.email;
+      $('#header-avatar').textContent = initials(state.user.display_name || state.user.email);
+    }
+
+    // highlight nav
+    const activeRoute = state.route === 'word-list' ? 'decks' : state.route;
+    $$('#desktop-nav button, .tabbar .tab').forEach(b => {
+      b.classList.toggle('active', b.dataset.route === activeRoute);
+    });
+
+    const main = $('#main');
+    main.innerHTML = '';
+    const screen = h('div', { class: 'screen active' });
+    main.appendChild(screen);
+
+    if (state.route === 'dashboard') renderDashboard(screen);
+    else if (state.route === 'decks') renderDecks(screen);
+    else if (state.route === 'word-list') renderWordList(screen, state.currentDeckId);
+    else if (state.route === 'quiz') renderQuiz(screen);
+    else if (state.route === 'progress') renderProgress(screen);
+  }
+
+  function logout() {
+    clearToken();
+    state.user = null;
+    state.quiz = null;
+    renderAuth();
+  }
+
+  // 7. Dashboard
+  async function renderDashboard(root) {
+    root.appendChild(h('div', { class: 'section-head' }, [
+      h('div', {}, [
+        h('h2', {}, `Hi, ${escapeHtml((state.user?.display_name || 'learner').split(' ')[0])}`),
+        h('p', { class: 'sub' }, 'Here’s how you’re doing today.'),
+      ]),
+    ]));
+
+    const statGrid = h('div', { class: 'stat-grid' }, [
+      loadingStat(), loadingStat(), loadingStat(), loadingStat(),
+    ]);
+    root.appendChild(statGrid);
+
+    root.appendChild(h('div', { class: 'section-head' }, [
+      h('h2', {}, 'Quick actions'),
+    ]));
+    const actions = h('div', { class: 'card', style: 'display:flex; flex-wrap:wrap; gap:10px; align-items:center;' }, [
+      h('button', { class: 'btn', onclick: () => setRoute('decks') }, '+ New deck'),
+      buildStartQuizDropdown(),
+      h('button', { class: 'btn btn-secondary', onclick: () => setRoute('progress') }, 'View progress'),
+    ]);
+    root.appendChild(actions);
+
+    root.appendChild(h('div', { class: 'section-head' }, [
+      h('h2', {}, 'Recent activity'),
+      h('p', { class: 'sub' }, 'Last 7 days'),
+    ]));
+    const chartCard = h('div', { class: 'card chart-card' }, [
+      h('div', { class: 'chart-head' }, [
+        h('h3', {}, 'Quizzes per day'),
+        h('span', { class: 'legend' }, 'Bar = quizzes answered'),
+      ]),
+      h('div', { class: 'loading-block' }, [h('span', { class: 'spinner spinner-lg' })]),
+    ]);
+    root.appendChild(chartCard);
+
+    try {
+      const [stats, history] = await Promise.all([
+        api('/api/progress/stats'),
+        api('/api/progress/history'),
+      ]);
+      statGrid.innerHTML = '';
+      statGrid.appendChild(buildStat('Total words', stats.total_words, 'All vocabulary', 'book'));
+      statGrid.appendChild(buildStat('Mastered', stats.mastered_words, `of ${stats.total_words}`, 'check', 'good'));
+      statGrid.appendChild(buildStat('Accuracy', stats.overall_accuracy_pct + '%', `${stats.total_quizzes} answers`, 'target'));
+      statGrid.appendChild(buildStat('Streak', stats.current_streak_days + 'd', `Longest ${stats.longest_streak_days}d`, 'flame', 'flame'));
+
+      chartCard.lastChild.remove();
+      const last7 = history.slice(-7);
+      const max = Math.max(1, ...last7.map(d => d.quizzes_completed));
+      const bars = h('div', { class: 'bars' });
+      last7.forEach(d => {
+        const pct = (d.quizzes_completed / max) * 100;
+        const col = h('div', { class: 'bar-col' }, [
+          h('div', { class: 'bar' + (d.quizzes_completed === 0 ? ' empty' : ''), style: `height:${pct}%`, title: `${d.date}: ${d.quizzes_completed} quizzes` }, [
+            d.quizzes_completed > 0 ? h('span', { class: 'bar-count' }, String(d.quizzes_completed)) : null,
+          ].filter(Boolean)),
+          h('div', { class: 'bar-label' }, dayLabel(d.date)),
+        ]);
+        bars.appendChild(col);
+      });
+      chartCard.appendChild(bars);
+    } catch (err) {
+      if (!err.unauthorized && !err.network) toast(err.message || 'Could not load dashboard', 'error');
+    }
+  }
+
+  function loadingStat() {
+    return h('div', { class: 'stat' }, [
+      h('div', { class: 'stat-label' }, '—'),
+      h('div', { class: 'stat-value' }, '…'),
+    ]);
+  }
+  function buildStat(label, value, sub, iconKey, mod) {
+    const svg = ({
+      book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+      check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+      target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+      flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
+    })[iconKey] || '';
+    return h('div', { class: 'stat' + (mod ? ' ' + mod : '') }, [
+      h('div', { class: 'stat-icon', html: svg }),
+      h('div', { class: 'stat-label' }, label),
+      h('div', { class: 'stat-value' }, String(value)),
+      h('div', { class: 'stat-sub' }, sub || ''),
+    ]);
+  }
+
+  function buildStartQuizDropdown() {
+    const wrap = h('div', { class: 'dropdown' });
+    const trigger = h('button', { class: 'btn btn-secondary', type: 'button' }, [
+      h('span', {}, 'Start quiz'),
+      h('span', { html: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' }),
+    ]);
+    const menu = h('div', { class: 'dropdown-menu' }, [
+      h('div', { class: 'muted' }, 'Loading decks…'),
+    ]);
+    wrap.appendChild(trigger);
+    wrap.appendChild(menu);
+    trigger.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const opening = !menu.classList.contains('open');
+      menu.classList.toggle('open', opening);
+      if (opening && menu.dataset.loaded !== '1') {
+        try {
+          const decks = await api('/api/decks');
+          menu.innerHTML = '';
+          if (!decks.length) {
+            menu.appendChild(h('div', { class: 'muted' }, 'No decks yet. Create one first.'));
+          } else {
+            decks.forEach(d => {
+              menu.appendChild(h('button', {
+                type: 'button',
+                onclick: () => { menu.classList.remove('open'); startQuizForDeck(d.id); },
+              }, `${d.name} · ${d.source_lang}→${d.target_lang} · ${d.word_count} words`));
+            });
+          }
+          menu.dataset.loaded = '1';
+        } catch (err) {
+          menu.innerHTML = '';
+          menu.appendChild(h('div', { class: 'muted' }, 'Could not load decks'));
+        }
+      }
+    });
+    document.addEventListener('click', () => menu.classList.remove('open'));
+    return wrap;
+  }
+
+  function startQuizForDeck(deckId) {
+    state.currentDeckId = deckId;
+    setRoute('quiz');
+  }
+
+  function dayLabel(iso) {
+    const d = new Date(iso + 'T00:00:00');
+    return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+  }
+
+  // 8. Decks + Word List
+  async function renderDecks(root) {
+    root.appendChild(h('div', { class: 'section-head' }, [
+      h('div', {}, [
+        h('h2', {}, 'Your decks'),
+        h('p', { class: 'sub' }, 'Each deck is a language pair you’re learning.'),
+      ]),
+      h('button', { class: 'btn', id: 'toggle-new-deck' }, '+ Create deck'),
+    ]));
+
+    const form = h('div', { class: 'inline-form', id: 'new-deck-form' }, [
+      h('h3', {}, 'New deck'),
+      h('div', { class: 'row two' }, [
+        (() => {
+          const f = h('div', { class: 'field' }, [
+            h('label', { for: 'nd-name' }, 'Deck name'),
+            h('input', { class: 'input', id: 'nd-name', type: 'text', placeholder: 'Spanish basics' }),
+          ]);
+          return f;
+        })(),
+        h('div', { class: 'row two' }, [
+          h('div', { class: 'field' }, [
+            h('label', { for: 'nd-src' }, 'From'),
+            h('input', { class: 'input', id: 'nd-src', type: 'text', placeholder: 'en', maxlength: '5' }),
+          ]),
+          h('div', { class: 'field' }, [
+            h('label', { for: 'nd-tgt' }, 'To'),
+            h('input', { class: 'input', id: 'nd-tgt', type: 'text', placeholder: 'es', maxlength: '5' }),
+          ]),
+        ]),
+      ]),
+      h('div', { class: 'form-actions' }, [
+        h('button', { class: 'btn', id: 'nd-save' }, 'Create'),
+        h('button', { class: 'btn btn-ghost', id: 'nd-cancel' }, 'Cancel'),
+      ]),
+    ]);
+    root.appendChild(form);
+
+    $('#toggle-new-deck', root).addEventListener('click', () => {
+      form.classList.toggle('open');
+      if (form.classList.contains('open')) $('#nd-name').focus();
+    });
+    $('#nd-cancel', root).addEventListener('click', () => form.classList.remove('open'));
+
+    $('#nd-save', root).addEventListener('click', async (e) => {
+      const name = $('#nd-name').value.trim();
+      const source_lang = $('#nd-src').value.trim().toLowerCase();
+      const target_lang = $('#nd-tgt').value.trim().toLowerCase();
+      if (!name || !source_lang || !target_lang) {
+        toast('Name, source and target are required', 'error');
+        return;
+      }
+      try {
+        await withBusy(e.currentTarget, 'Creating', async () => {
+          await api('/api/decks', { method: 'POST', body: { name, source_lang, target_lang } });
+        });
+        toast('Deck created', 'success');
+        form.classList.remove('open');
+        renderShell();
+      } catch (err) {
+        if (!err.network && !err.unauthorized) toast(err.message || 'Could not create deck', 'error');
+      }
+    });
+
+    const listWrap = h('div', { class: 'deck-grid' }, [
+      h('div', { class: 'loading-block', style: 'grid-column:1/-1;' }, [h('span', { class: 'spinner spinner-lg' })]),
+    ]);
+    root.appendChild(listWrap);
+
+    try {
+      const decks = await api('/api/decks');
+      listWrap.innerHTML = '';
+      if (!decks.length) {
+        listWrap.appendChild(h('div', { class: 'empty-state', style: 'grid-column:1/-1;' }, [
+          h('div', { class: 'emoji' }, '📚'),
+          h('h3', {}, 'No decks yet'),
+          h('p', {}, 'Create one to start learning!'),
+        ]));
+        return;
+      }
+      decks.forEach(d => listWrap.appendChild(buildDeckCard(d)));
+    } catch (err) {
+      listWrap.innerHTML = '';
+      if (!err.unauthorized && !err.network) toast(err.message || 'Could not load decks', 'error');
+    }
+  }
+
+  function buildDeckCard(d) {
+    const card = h('div', { class: 'deck-card' }, [
+      h('div', { class: 'deck-card-top' }, [
+        h('div', { class: 'deck-card-name' }, d.name),
+        h('button', {
+          class: 'icon-btn',
+          title: 'Delete',
+          'aria-label': 'Delete deck',
+          onclick: async (e) => {
+            e.stopPropagation();
+            const ok = await confirmModal({
+              title: 'Delete deck?',
+              body: `"${d.name}" and all its ${d.word_count} word${d.word_count === 1 ? '' : 's'} will be permanently removed.`,
+              confirmLabel: 'Delete',
+            });
+            if (!ok) return;
+            try {
+              await api('/api/decks/' + d.id, { method: 'DELETE' });
+              toast('Deck deleted', 'success');
+              renderShell();
+            } catch (err) {
+              if (!err.network && !err.unauthorized) toast(err.message || 'Delete failed', 'error');
+            }
+          },
+          html: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+        }),
+      ]),
+      h('div', { class: 'deck-card-meta' }, [
+        h('span', { class: 'lang-pair' }, [
+          h('span', {}, d.source_lang.toUpperCase()),
+          h('span', { html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>' }),
+          h('span', {}, d.target_lang.toUpperCase()),
+        ]),
+        h('span', { class: 'word-count-pill' }, `${d.word_count} word${d.word_count === 1 ? '' : 's'}`),
+      ]),
+      h('div', { style: 'display:flex; gap:8px; margin-top:14px;' }, [
+        h('button', { class: 'btn btn-secondary btn-sm', onclick: (e) => { e.stopPropagation(); setRoute('word-list', { deckId: d.id }); } }, 'Open'),
+        h('button', { class: 'btn btn-sm', onclick: (e) => { e.stopPropagation(); startQuizForDeck(d.id); } }, 'Quiz'),
+      ]),
+    ]);
+    card.addEventListener('click', () => setRoute('word-list', { deckId: d.id }));
+    return card;
+  }
+
+  async function renderWordList(root, deckId) {
+    const backRow = h('div', { class: 'screen-head' }, [
+      h('button', { class: 'back-btn', onclick: () => setRoute('decks'), 'aria-label': 'Back' }, [
+        h('span', { html: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' }),
+      ]),
+      h('div', {}, [
+        h('h2', { id: 'wl-title' }, 'Deck'),
+        h('p', { id: 'wl-sub' }, '…'),
+      ]),
+    ]);
+    root.appendChild(backRow);
+
+    root.appendChild(h('div', { class: 'section-head' }, [
+      h('div', {}, [
+        h('h2', {}, 'Words'),
+      ]),
+      h('div', { style: 'display:flex; gap:8px;' }, [
+        h('button', { class: 'btn btn-secondary btn-sm', onclick: () => startQuizForDeck(deckId) }, 'Quiz this deck'),
+        h('button', { class: 'btn btn-sm', id: 'toggle-new-word' }, '+ Add word'),
+      ]),
+    ]));
+
+    const addForm = h('div', { class: 'inline-form', id: 'new-word-form' }, [
+      h('h3', {}, 'Add word'),
+      h('div', { class: 'row two' }, [
+        h('div', { class: 'field' }, [
+          h('label', { for: 'nw-term' }, 'Term'),
+          h('input', { class: 'input', id: 'nw-term', type: 'text', placeholder: 'hello' }),
+        ]),
+        h('div', { class: 'field' }, [
+          h('label', { for: 'nw-trans' }, 'Translation'),
+          h('input', { class: 'input', id: 'nw-trans', type: 'text', placeholder: 'hola' }),
+        ]),
+      ]),
+      h('div', { class: 'form-actions' }, [
+        h('button', { class: 'btn', id: 'nw-save' }, 'Add'),
+        h('button', { class: 'btn btn-ghost', id: 'nw-cancel' }, 'Cancel'),
+      ]),
+    ]);
+    root.appendChild(addForm);
+
+    $('#toggle-new-word', root).addEventListener('click', () => {
+      addForm.classList.toggle('open');
+      if (addForm.classList.contains('open')) $('#nw-term').focus();
+    });
+    $('#nw-cancel', root).addEventListener('click', () => addForm.classList.remove('open'));
+    $('#nw-save', root).addEventListener('click', async (e) => {
+      const term = $('#nw-term').value.trim();
+      const translation = $('#nw-trans').value.trim();
+      if (!term || !translation) { toast('Term and translation required', 'error'); return; }
+      try {
+        await withBusy(e.currentTarget, 'Adding', async () => {
+          await api(`/api/decks/${deckId}/words`, { method: 'POST', body: { term, translation } });
+        });
+        $('#nw-term').value = '';
+        $('#nw-trans').value = '';
+        toast('Word added', 'success');
+        await reloadWords();
+      } catch (err) {
+        if (!err.network && !err.unauthorized) toast(err.message || 'Could not add word', 'error');
+      }
+    });
+
+    const listWrap = h('div', { id: 'wl-list' }, [
+      h('div', { class: 'loading-block' }, [h('span', { class: 'spinner spinner-lg' })]),
+    ]);
+    root.appendChild(listWrap);
+
+    async function reloadWords() {
+      try {
+        const [deck, words] = await Promise.all([
+          api('/api/decks/' + deckId),
+          api(`/api/decks/${deckId}/words`),
+        ]);
+        $('#wl-title').textContent = deck.name;
+        $('#wl-sub').textContent = `${deck.source_lang.toUpperCase()} → ${deck.target_lang.toUpperCase()} · ${deck.word_count} word${deck.word_count === 1 ? '' : 's'}`;
+
+        listWrap.innerHTML = '';
+        if (!words.length) {
+          listWrap.appendChild(h('div', { class: 'empty-state' }, [
+            h('div', { class: 'emoji' }, '✍️'),
+            h('h3', {}, 'No words yet'),
+            h('p', {}, 'Add some vocabulary!'),
+          ]));
+          return;
+        }
+        const listEl = h('div', { style: 'display:flex; flex-direction:column; gap:8px;' });
+        words.forEach(w => listEl.appendChild(buildWordRow(deckId, w, reloadWords)));
+        listWrap.appendChild(listEl);
+      } catch (err) {
+        listWrap.innerHTML = '';
+        if (!err.unauthorized && !err.network) toast(err.message || 'Could not load words', 'error');
+      }
+    }
+    reloadWords();
+  }
+
+  function buildWordRow(deckId, w, reload) {
+    const row = h('div', { class: 'word-row', 'data-word-id': w.id });
+
+    function renderView() {
+      row.innerHTML = '';
+      const text = h('div', { class: 'word-text' }, [
+        h('div', { class: 'term' }, [
+          h('span', {}, w.term),
+          w.mastered ? h('span', { class: 'badge badge-mastered' }, 'Mastered') : null,
+        ].filter(Boolean)),
+        h('div', { class: 'translation' }, w.translation),
+        h('div', { class: 'word-stats' }, [
+          h('span', { class: 'ok', html: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ${w.times_correct}` }),
+          h('span', { class: 'bad', html: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ${w.times_wrong}` }),
+        ]),
+      ]);
+      const actions = h('div', { class: 'word-actions' }, [
+        h('button', {
+          class: 'icon-btn', title: 'Edit', 'aria-label': 'Edit word',
+          onclick: (e) => { e.stopPropagation(); renderEdit(); },
+          html: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+        }),
+        h('button', {
+          class: 'icon-btn', title: 'Delete', 'aria-label': 'Delete word',
+          onclick: async (e) => {
+            e.stopPropagation();
+            const ok = await confirmModal({
+              title: 'Delete word?',
+              body: `"${w.term}" will be removed from this deck.`,
+              confirmLabel: 'Delete',
+            });
+            if (!ok) return;
+            try {
+              await api(`/api/decks/${deckId}/words/${w.id}`, { method: 'DELETE' });
+              toast('Word deleted', 'success');
+              reload();
+            } catch (err) {
+              if (!err.network && !err.unauthorized) toast(err.message || 'Delete failed', 'error');
+            }
+          },
+          html: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+        }),
+      ]);
+      row.appendChild(text);
+      row.appendChild(actions);
+      row.onclick = (e) => { if (e.target === row || e.target.classList.contains('word-text')) renderEdit(); };
+    }
+
+    function renderEdit() {
+      row.innerHTML = '';
+      row.onclick = null;
+      const termInput = h('input', { class: 'input', value: w.term, 'aria-label': 'Term' });
+      const transInput = h('input', { class: 'input', value: w.translation, 'aria-label': 'Translation' });
+      const save = h('button', { class: 'btn btn-sm' }, 'Save');
+      const cancel = h('button', { class: 'btn btn-ghost btn-sm' }, 'Cancel');
+      save.onclick = async (e) => {
+        const term = termInput.value.trim();
+        const translation = transInput.value.trim();
+        if (!term || !translation) { toast('Both fields required', 'error'); return; }
+        try {
+          await withBusy(e.currentTarget, 'Saving', async () => {
+            await api(`/api/decks/${deckId}/words/${w.id}`, { method: 'PUT', body: { term, translation } });
+          });
+          toast('Word updated', 'success');
+          reload();
+        } catch (err) {
+          if (!err.network && !err.unauthorized) toast(err.message || 'Update failed', 'error');
+        }
+      };
+      cancel.onclick = () => renderView();
+      row.appendChild(h('div', { class: 'word-text', style: 'display:grid; gap:6px; grid-template-columns:1fr 1fr;' }, [termInput, transInput]));
+      row.appendChild(h('div', { class: 'word-actions' }, [save, cancel]));
+      setTimeout(() => termInput.focus(), 0);
+    }
+
+    renderView();
+    return row;
+  }
+
+  // 9. Quiz
+  async function renderQuiz(root) {
+    if (state.quiz && state.quiz.phase === 'play') return renderQuizPlay(root);
+    if (state.quiz && state.quiz.phase === 'results') return renderQuizResults(root);
+
+    root.appendChild(h('div', { class: 'section-head' }, [
+      h('div', {}, [
+        h('h2', {}, 'Start a quiz'),
+        h('p', { class: 'sub' }, 'Pick a deck and how many cards to practice.'),
+      ]),
+    ]));
+
+    const config = h('div', { class: 'card quiz-config' }, [
+      h('div', { class: 'field' }, [
+        h('label', {}, 'Deck'),
+        h('div', { id: 'quiz-deck-list', class: 'chip-row' }, [
+          h('span', { class: 'spinner' }),
+        ]),
+      ]),
+      h('div', { class: 'field' }, [
+        h('label', {}, 'Cards'),
+        h('div', { id: 'quiz-count', class: 'chip-row' }, [
+          h('button', { class: 'chip', 'data-count': '5' }, '5'),
+          h('button', { class: 'chip selected', 'data-count': '10' }, '10'),
+          h('button', { class: 'chip', 'data-count': '20' }, '20'),
+        ]),
+      ]),
+      h('button', { class: 'btn', id: 'quiz-start', style: 'margin-top:6px;' }, 'Start quiz'),
+    ]);
+    root.appendChild(config);
+
+    let selectedDeck = state.currentDeckId || null;
+    let count = 10;
+
+    try {
+      const decks = await api('/api/decks');
+      const row = $('#quiz-deck-list', root);
+      row.innerHTML = '';
+      if (!decks.length) {
+        row.appendChild(h('div', { class: 'empty-state', style: 'width:100%;' }, [
+          h('div', { class: 'emoji' }, '📚'),
+          h('h3', {}, 'No decks yet'),
+          h('p', {}, 'Create a deck and add words first.'),
+          h('button', { class: 'btn btn-sm', style: 'margin-top:12px;', onclick: () => setRoute('decks') }, 'Go to decks'),
+        ]));
+        $('#quiz-start').disabled = true;
+        return;
+      }
+      decks.forEach(d => {
+        const chip = h('button', { class: 'chip' + (selectedDeck === d.id ? ' selected' : ''), type: 'button' }, `${d.name} · ${d.word_count}`);
+        chip.addEventListener('click', () => {
+          selectedDeck = d.id;
+          row.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+          chip.classList.add('selected');
+        });
+        row.appendChild(chip);
+      });
+      if (!selectedDeck && decks.length === 1) {
+        selectedDeck = decks[0].id;
+        row.querySelector('.chip').classList.add('selected');
+      }
+    } catch (err) {
+      if (!err.unauthorized && !err.network) toast(err.message || 'Could not load decks', 'error');
+    }
+
+    $('#quiz-count', root).addEventListener('click', (e) => {
+      const btn = e.target.closest('.chip');
+      if (!btn) return;
+      count = parseInt(btn.dataset.count, 10);
+      $$('#quiz-count .chip', root).forEach(c => c.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+
+    $('#quiz-start', root).addEventListener('click', async (e) => {
+      if (!selectedDeck) { toast('Pick a deck to quiz', 'error'); return; }
+      try {
+        await withBusy(e.currentTarget, 'Loading', async () => {
+          const cards = await api('/api/quiz/start', { method: 'POST', body: { deck_id: selectedDeck, count } });
+          if (!cards.length) { toast('This deck has no words. Add some first.', 'error'); return; }
+          state.quiz = { deckId: selectedDeck, cards, index: 0, answers: [], phase: 'play' };
+          state.currentDeckId = selectedDeck;
+          renderShell();
+        });
+      } catch (err) {
+        if (!err.network && !err.unauthorized) toast(err.message || 'Could not start quiz', 'error');
+      }
+    });
+  }
+
+  async function renderQuizPlay(root) {
+    const q = state.quiz;
+    const total = q.cards.length;
+    const card = q.cards[q.index];
+
+    root.appendChild(h('div', { class: 'screen-head' }, [
+      h('button', { class: 'back-btn', onclick: async () => {
+        const ok = await confirmModal({ title: 'Leave quiz?', body: 'Your answered cards are saved; unanswered cards won’t count.', confirmLabel: 'Leave' });
+        if (ok) { state.quiz = null; setRoute('quiz'); }
+      }, 'aria-label': 'Back' }, [
+        h('span', { html: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' }),
+      ]),
+      h('div', {}, [
+        h('h2', {}, 'Quiz in progress'),
+        h('p', {}, `Card ${q.index + 1} of ${total}`),
+      ]),
+    ]));
+
+    const pct = (q.index / total) * 100;
+    const progress = h('div', { class: 'progress-bar', style: 'margin-bottom:18px;' }, [
+      h('div', { class: 'fill', style: `width:${pct}%` }),
+    ]);
+    root.appendChild(progress);
+
+    const fc = h('div', { class: 'flashcard' }, [
+      h('div', { class: 'prompt-hint' }, 'Translate this word'),
+      h('div', { class: 'prompt-term' }, card.prompt),
+      h('form', { id: 'answer-form', style: 'margin-top:8px;' }, [
+        h('input', { class: 'input', id: 'ans-input', type: 'text', placeholder: 'Type your translation…', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false' }),
+        h('div', { class: 'answer-feedback', id: 'feedback' }),
+        h('div', { style: 'display:flex; gap:8px; margin-top:14px;' }, [
+          h('button', { class: 'btn', type: 'submit', id: 'ans-submit' }, 'Check'),
+          h('button', { class: 'btn btn-ghost', type: 'button', id: 'ans-skip' }, 'Skip'),
+        ]),
+      ]),
+    ]);
+    root.appendChild(fc);
+
+    const input = $('#ans-input', root);
+    const feedback = $('#feedback', root);
+    const form = $('#answer-form', root);
+    setTimeout(() => input.focus(), 50);
+
+    let locked = false;
+
+    $('#ans-skip').addEventListener('click', async () => {
+      if (locked) return;
+      locked = true;
+      await submitAnswer('');
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (locked) return;
+      const val = input.value.trim();
+      if (!val) { input.focus(); return; }
+      locked = true;
+      await submitAnswer(val);
+    });
+
+    async function submitAnswer(ans) {
+      const btn = $('#ans-submit');
+      const skipBtn = $('#ans-skip');
+      btn.disabled = true; skipBtn.disabled = true; input.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Checking';
+      let result;
+      try {
+        result = await api('/api/quiz/answer', { method: 'POST', body: { word_id: card.card_id, answer: ans } });
+      } catch (err) {
+        btn.disabled = false; skipBtn.disabled = false; input.disabled = false;
+        btn.textContent = 'Check'; locked = false;
+        if (!err.network && !err.unauthorized) toast(err.message || 'Could not submit', 'error');
+        return;
+      }
+      q.answers.push({ word_id: card.card_id, term: card.prompt, your: ans, expected: result.expected, correct: result.correct });
+      fc.classList.add(result.correct ? 'correct' : 'wrong', 'flash');
+      feedback.classList.add(result.correct ? 'correct' : 'wrong');
+      feedback.innerHTML = result.correct
+        ? `<span>Correct!</span><span class="expected">${escapeHtml(result.expected)}</span>`
+        : `<span>Not quite.</span><span class="expected">Expected: ${escapeHtml(result.expected)}</span>`;
+      btn.textContent = 'Next →';
+      btn.disabled = false;
+
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        advance();
+      };
+      skipBtn.style.display = 'none';
+    }
+
+    function advance() {
+      q.index += 1;
+      if (q.index >= total) {
+        q.phase = 'results';
+      }
+      renderShell();
+    }
+  }
+
+  function renderQuizResults(root) {
+    const q = state.quiz;
+    const total = q.answers.length;
+    const correct = q.answers.filter(a => a.correct).length;
+    const acc = total ? Math.round((correct / total) * 100) : 0;
+    const wrongOnes = q.answers.filter(a => !a.correct);
+
+    const card = h('div', { class: 'results-card' }, [
+      h('div', { style: 'font-size:2.2rem;' }, acc === 100 ? '🏆' : acc >= 70 ? '🎉' : acc >= 40 ? '📚' : '💪'),
+      h('div', { class: 'results-score' }, `${correct} / ${total}`),
+      h('div', { class: 'results-sub' }, `${acc}% accuracy`),
+      h('div', { style: 'display:flex; gap:10px; justify-content:center; flex-wrap:wrap;' }, [
+        h('button', { class: 'btn', onclick: () => {
+          const deckId = q.deckId;
+          state.quiz = null;
+          state.currentDeckId = deckId;
+          setRoute('quiz');
+        } }, 'Quiz again'),
+        h('button', { class: 'btn btn-secondary', onclick: () => {
+          state.quiz = null;
+          setRoute('dashboard');
+        } }, 'Back to dashboard'),
+      ]),
+      wrongOnes.length ? h('div', { class: 'results-wrong-list' }, [
+        h('h4', {}, `${wrongOnes.length} to review`),
+        ...wrongOnes.map(w => h('div', { class: 'wrong-item' }, [
+          h('div', {}, [
+            h('strong', {}, w.term),
+            document.createTextNode(' — '),
+            h('span', { class: 'your' }, w.your || '(skipped)'),
+            document.createTextNode('  '),
+            h('span', { class: 'right' }, w.expected),
+          ]),
+        ])),
+      ]) : h('div', { class: 'results-wrong-list' }, [h('h4', {}, 'Perfect round! 🌟')]),
+    ]);
+    root.appendChild(card);
+  }
+
+  // 10. Progress
+  async function renderProgress(root) {
+    root.appendChild(h('div', { class: 'section-head' }, [
+      h('div', {}, [
+        h('h2', {}, 'Your progress'),
+        h('p', { class: 'sub' }, 'Stats, streaks, and recent activity.'),
+      ]),
+    ]));
+
+    const statGrid = h('div', { class: 'stat-grid' }, [loadingStat(), loadingStat(), loadingStat(), loadingStat()]);
+    root.appendChild(statGrid);
+
+    const streakCard = h('div', { class: 'card', style: 'margin-top:16px; display:flex; gap:18px; align-items:center;' }, [
+      h('div', { class: 'flame-big', id: 'flame' }, '🔥'),
+      h('div', { style: 'flex:1;' }, [
+        h('div', { style: 'font-size:0.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:600;' }, 'Current streak'),
+        h('div', { id: 'streak-value', style: 'font-size:1.8rem; font-weight:700; letter-spacing:-0.02em;' }, '…'),
+        h('div', { id: 'streak-sub', class: 'stat-sub' }, ''),
+      ]),
+    ]);
+    root.appendChild(streakCard);
+
+    const masteryCard = h('div', { class: 'card', style: 'margin-top:14px;' }, [
+      h('div', { style: 'display:flex; justify-content:space-between; align-items:baseline;' }, [
+        h('h3', { style: 'font-size:0.95rem; font-weight:700;' }, 'Mastery progress'),
+        h('span', { id: 'mastery-text', class: 'sub', style: 'color:var(--muted); font-size:0.85rem;' }, '…'),
+      ]),
+      h('div', { class: 'mastery-bar' }, [h('div', { class: 'fill', id: 'mastery-fill', style: 'width:0%' })]),
+    ]);
+    root.appendChild(masteryCard);
+
+    root.appendChild(h('div', { class: 'section-head' }, [
+      h('h2', {}, 'Last 30 days'),
+      h('p', { class: 'sub' }, 'Darker = more activity'),
+    ]));
+    const heatCard = h('div', { class: 'card' }, [
+      h('div', { class: 'heatmap', id: 'heatmap' }, []),
+      h('div', { class: 'heatmap-legend' }, [
+        h('span', {}, 'Less'),
+        h('div', { class: 'box', style: 'background:var(--bg-2); border:1px solid var(--border);' }),
+        h('div', { class: 'box', style: 'background:rgba(108,99,255,0.25);' }),
+        h('div', { class: 'box', style: 'background:rgba(108,99,255,0.5);' }),
+        h('div', { class: 'box', style: 'background:rgba(108,99,255,0.75);' }),
+        h('div', { class: 'box', style: 'background:var(--accent);' }),
+        h('span', {}, 'More'),
+      ]),
+    ]);
+    root.appendChild(heatCard);
+
+    const barChart = h('div', { class: 'card chart-card', style: 'margin-top:14px;' }, [
+      h('div', { class: 'chart-head' }, [h('h3', {}, 'Daily quizzes'), h('span', { class: 'legend' }, 'Last 14 days')]),
+      h('div', { class: 'loading-block' }, [h('span', { class: 'spinner spinner-lg' })]),
+    ]);
+    root.appendChild(barChart);
+
+    try {
+      const [stats, history] = await Promise.all([
+        api('/api/progress/stats'),
+        api('/api/progress/history'),
+      ]);
+
+      statGrid.innerHTML = '';
+      statGrid.appendChild(buildStat('Total quizzes', stats.total_quizzes, 'All-time', 'target'));
+      statGrid.appendChild(buildStat('Accuracy', stats.overall_accuracy_pct + '%', 'Across all answers', 'check', 'good'));
+      statGrid.appendChild(buildStat('Mastered', stats.mastered_words, `of ${stats.total_words}`, 'book', 'good'));
+      statGrid.appendChild(buildStat('Longest streak', stats.longest_streak_days + 'd', 'Personal best', 'flame', 'flame'));
+
+      $('#streak-value').textContent = `${stats.current_streak_days} day${stats.current_streak_days === 1 ? '' : 's'}`;
+      $('#streak-sub').textContent = stats.current_streak_days > 0
+        ? `Keep it going — longest: ${stats.longest_streak_days} days.`
+        : 'Answer one quiz today to start a streak.';
+
+      const total = stats.total_words;
+      const mastered = stats.mastered_words;
+      const pct = total ? Math.round((mastered / total) * 100) : 0;
+      $('#mastery-text').textContent = total ? `${mastered} of ${total} words — ${pct}%` : 'No words yet';
+      $('#mastery-fill').style.width = pct + '%';
+
+      // heatmap
+      const heat = $('#heatmap');
+      heat.innerHTML = '';
+      const maxQ = Math.max(1, ...history.map(d => d.quizzes_completed));
+      history.forEach(d => {
+        const lvl = d.quizzes_completed === 0 ? 0 :
+          d.quizzes_completed / maxQ > 0.75 ? 4 :
+          d.quizzes_completed / maxQ > 0.5 ? 3 :
+          d.quizzes_completed / maxQ > 0.25 ? 2 : 1;
+        heat.appendChild(h('div', {
+          class: 'heat-cell',
+          'data-level': lvl,
+          title: `${d.date}: ${d.quizzes_completed} quiz${d.quizzes_completed === 1 ? '' : 'zes'}${d.total_count ? `, ${d.accuracy_pct}% acc` : ''}`,
+        }));
+      });
+
+      // bars (last 14)
+      barChart.lastChild.remove();
+      const last = history.slice(-14);
+      const m = Math.max(1, ...last.map(d => d.quizzes_completed));
+      const bars = h('div', { class: 'bars' });
+      last.forEach(d => {
+        const p = (d.quizzes_completed / m) * 100;
+        bars.appendChild(h('div', { class: 'bar-col' }, [
+          h('div', { class: 'bar' + (d.quizzes_completed === 0 ? ' empty' : ''), style: `height:${p}%`, title: `${d.date}: ${d.quizzes_completed}` }),
+          h('div', { class: 'bar-label' }, d.date.slice(-2)),
+        ]));
+      });
+      barChart.appendChild(bars);
+    } catch (err) {
+      if (!err.unauthorized && !err.network) toast(err.message || 'Could not load progress', 'error');
+    }
+  }
+
+  // 11. Bootstrap
+  (async function boot() {
+    if (!getToken()) {
+      renderAuth();
+      return;
+    }
+    try {
+      await loadMe();
+      setRoute('dashboard');
+    } catch (err) {
+      clearToken();
+      renderAuth();
+    }
+  })();
+  </script>
 </body>
 </html>
