@@ -929,6 +929,36 @@
     .modal p { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; }
     .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
+    /* ======= Header CTA ======= */
+    .header-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      text-decoration: none;
+      transition: var(--ease);
+      white-space: nowrap;
+    }
+    .header-cta:hover {
+      color: var(--text);
+      background: var(--card-2);
+      border-color: var(--border-2);
+    }
+    .header-cta svg {
+      width: 12px;
+      height: 12px;
+      opacity: 0.8;
+    }
+    .header-cta .cta-label-full { display: none; }
+    .header-cta .cta-label-short { display: inline; }
+
     /* ======= Responsive ======= */
     @media (min-width: 720px) {
       .stat-grid { grid-template-columns: repeat(4, 1fr); }
@@ -937,6 +967,8 @@
       .tabbar { display: none; }
       .shell { padding-bottom: 40px; }
       .prompt-term { font-size: 2.8rem; }
+      .header-cta .cta-label-full { display: inline; }
+      .header-cta .cta-label-short { display: none; }
     }
     @media (min-width: 960px) {
       .deck-grid { grid-template-columns: repeat(3, 1fr); }
@@ -1006,6 +1038,11 @@
           <button data-route="quiz">Quiz</button>
           <button data-route="progress">Progress</button>
         </nav>
+        <a class="header-cta" href="https://pxinova.ai" target="_blank" rel="noopener noreferrer" aria-label="Visit pxinova.ai (opens in a new tab)">
+          <span class="cta-label-full">Visit pxinova.ai</span>
+          <span class="cta-label-short">pxinova</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"/><polyline points="7 7 17 7 17 17"/></svg>
+        </a>
         <div class="user-area">
           <div class="user-chip">
             <span class="avatar" id="header-avatar">?</span>
