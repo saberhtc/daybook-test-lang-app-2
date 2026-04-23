@@ -362,9 +362,9 @@ No deliveries yet.
 
 ## Your task
 
-Read the spec file at: /Users/saber/Development/daybook-master/daybook-test-lang-app-2/.daybook/specs/3/spec.md
+Read the spec file at: /Users/saber/Development/daybook-master/daybook-test-lang-app-2/.daybook/specs/7/spec.md
 Build everything it requires in this worktree.
-Use port 8100 for any servers. Database at /tmp/daybook-runs/c2350745/app.db.
+Use port 8100 for any servers. Database at /tmp/daybook-runs/96afba9d/app.db.
 
 ## Acceptance command rules
 
@@ -557,40 +557,56 @@ human.
 
 ## Environment (set by Daybook — use these)
 
-DB_PATH=/tmp/daybook-runs/c2350745/app.db — your database goes here
+DB_PATH=/tmp/daybook-runs/96afba9d/app.db — your database goes here
 PORT=8100 — use this for any servers
-TEMP_DIR=/tmp/daybook-runs/c2350745/tmp — use this for temporary files
+TEMP_DIR=/tmp/daybook-runs/96afba9d/tmp — use this for temporary files
 
 Read these with os.environ.get('DB_PATH', ...) in your code.
 The verifier will test your code with DIFFERENT values for these.
 If your code ignores these env vars, verification will fail.
 
-## Triage notes (advisory — the spec is NOT modified)
+## !! PREVIOUS ATTEMPT — READ THIS FIRST !!
 
-A cheap pre-screen produced these observations. Consider them but
-use your own judgment — the spec is the source of truth.
+This is a **continuation** of a previous delivery. The code already
+in this worktree is YOUR previous work. **Do NOT start over.** Read
+what went wrong, then make the minimum changes needed to fix the
+specific issues below.
 
-- Risk: low
-- Reason: Trivial one-line footer text addition with clear acceptance criteria and no dependencies.
-- Phase alignment: current=Phase 2: Core features (parallel), spec=Branding/independent, aligned=True
+### Verifier evidence (why it failed)
 
-## Expected changes (from spec contract)
+- Acceptance result: `pass`
+- Evidence types: `acceptance_commands`
 
-This spec declares the files it intends to touch. Any other file
-you change will be treated as **exhaust** and discarded at merge
-time. Stay inside the contract.
+Tests run by the verifier:
 
-**MODIFY:** `static/index.html`
+- Command: `python3 -c "
+import pathlib
+html = pathlib.Path('static/index.html').read_text()
+assert 'Built with Daybook' in html, 'tagline missing'
+print('PASS')
+"`
+  - Result: `pass`
+  - Output:
+    ```
+    PASS
+    ```
 
-Do **not** commit:
-- `__pycache__/` directories or `.pyc` / `.pyo` files
-- `.env` (unless explicitly listed above)
-- `CLAUDE.md` (unless explicitly listed above) — Daybook owns it
-- IDE/editor scratch files (`.DS_Store`, `node_modules/`, build artefacts)
-- Any file not in the lists above
+### Human feedback
 
-If you genuinely need to touch a file outside this contract,
-stop and explain in your delivery report under a top-level
-`requested_contract_additions` field. Do not silently expand
-scope — the merge layer will discard surprises and a contract
-violation will block delivery.
+PM reconsideration (strategy: force-file-touch, approach: incremental, risk: low):
+
+The merge validator requires static/index.html to appear in the git diff — a no-op delivery that leaves the file unchanged will always fail. Even if 'Built with Daybook.' is already present, you must make a real edit to the file so it shows up as modified in git. Touch the footer line: rewrite it slightly (e.g. normalize whitespace, fix attribute order, or ensure the exact string matches the spec) so the file is genuinely changed and committed on this branch.
+
+### What you delivered last time
+
+- Status: `delivered`
+- Agent's own acceptance result: `pass`
+
+### Your task now
+
+1. Read the feedback and evidence above carefully.
+2. Identify what needs to change in your existing code.
+3. Make the **minimum** changes needed to fix the issues — do
+   NOT rewrite everything.
+4. Re-run the acceptance commands to verify the fix.
+5. Output a fresh delivery report JSON.
