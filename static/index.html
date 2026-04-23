@@ -933,8 +933,9 @@
     .header-cta {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 7px 12px;
+      gap: 7px;
+      padding: 7px 13px;
+      margin-left: auto;
       border-radius: 999px;
       background: var(--card);
       border: 1px solid var(--border);
@@ -951,10 +952,16 @@
       background: var(--card-2);
       border-color: var(--border-2);
     }
+    .header-cta:focus-visible {
+      outline: 2px solid var(--text);
+      outline-offset: 2px;
+    }
+    .header-cta:hover svg { opacity: 1; transform: translate(1px, -1px); }
     .header-cta svg {
       width: 12px;
       height: 12px;
-      opacity: 0.8;
+      opacity: 0.75;
+      transition: var(--ease);
     }
     .header-cta .cta-label-full { display: none; }
     .header-cta .cta-label-short { display: inline; }
@@ -1038,10 +1045,10 @@
           <button data-route="quiz">Quiz</button>
           <button data-route="progress">Progress</button>
         </nav>
-        <a class="header-cta" href="https://pxinova.ai" target="_blank" rel="noopener noreferrer" aria-label="Visit pxinova.ai (opens in a new tab)">
+        <a class="header-cta" href="https://pxinova.ai" target="_blank" rel="noopener noreferrer" title="Visit pxinova.ai" aria-label="Visit pxinova.ai (opens in a new tab)">
           <span class="cta-label-full">Visit pxinova.ai</span>
-          <span class="cta-label-short">pxinova</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"/><polyline points="7 7 17 7 17 17"/></svg>
+          <span class="cta-label-short" aria-hidden="true">pxinova</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17L17 7"/><polyline points="8 7 17 7 17 16"/></svg>
         </a>
         <div class="user-area">
           <div class="user-chip">

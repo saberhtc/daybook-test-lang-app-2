@@ -362,9 +362,9 @@ No deliveries yet.
 
 ## Your task
 
-Read the spec file at: /Users/saber/Development/daybook-master/daybook-test-lang-app-2/.daybook/specs/8/spec.md
+Read the spec file at: /Users/saber/Development/daybook-master/daybook-test-lang-app-2/.daybook/specs/1/spec.md
 Build everything it requires in this worktree.
-Use port 8100 for any servers. Database at /tmp/daybook-runs/5b5d208d/app.db.
+Use port 8100 for any servers. Database at /tmp/daybook-runs/e15f172a/app.db.
 
 ## Acceptance command rules
 
@@ -557,43 +557,57 @@ human.
 
 ## Environment (set by Daybook — use these)
 
-DB_PATH=/tmp/daybook-runs/5b5d208d/app.db — your database goes here
+DB_PATH=/tmp/daybook-runs/e15f172a/app.db — your database goes here
 PORT=8100 — use this for any servers
-TEMP_DIR=/tmp/daybook-runs/5b5d208d/tmp — use this for temporary files
+TEMP_DIR=/tmp/daybook-runs/e15f172a/tmp — use this for temporary files
 
 Read these with os.environ.get('DB_PATH', ...) in your code.
 The verifier will test your code with DIFFERENT values for these.
 If your code ignores these env vars, verification will fail.
 
-## Triage notes (advisory — the spec is NOT modified)
+## !! PREVIOUS ATTEMPT — READ THIS FIRST !!
 
-A cheap pre-screen produced these observations. Consider them but
-use your own judgment — the spec is the source of truth.
+This is a **continuation** of a previous delivery. The code already
+in this worktree is YOUR previous work. **Do NOT start over.** Read
+what went wrong, then make the minimum changes needed to fix the
+specific issues below.
 
-- Risk: low
-- Reason: Small, isolated UI change with clear acceptance criteria, no backend dependencies, and low delivery risk.
-- Phase alignment: current=Phase 1–2: Foundation (auth/db) and core features (words/quiz/progress), spec=Marketing/Branding (external company CTA link), aligned=False
-- Suggestions:
-  - Verify static/index.html exists and contains a <header class="topbar"> element before building
-  - Consider documenting the styling approach (which CSS variables to reuse for the pill button)
+### Verifier evidence (why it failed)
 
-## Expected changes (from spec contract)
+- Acceptance result: `pass`
+- Evidence types: `acceptance_commands`
 
-This spec declares the files it intends to touch. Any other file
-you change will be treated as **exhaust** and discarded at merge
-time. Stay inside the contract.
+Tests run by the verifier:
 
-**MODIFY:** `static/index.html`
+- Command: `python3 -c "
+import pathlib, re
+html = pathlib.Path('static/index.html').read_text()
 
-Do **not** commit:
-- `__pycache__/` directories or `.pyc` / `.pyo` files
-- `.env` (unless explicitly listed above)
-- `CLAUDE.md` (unless explicitly listed above) — Daybook owns it
-- IDE/editor scratch files (`.DS_Store`, `node_modules/`, build artefacts)
-- Any file not in the lists above
+# CTA must live inside the <header class='topbar'> block
+m = re.search(r'<header class=\"topbar\".*?</header>', ht`
+  - Result: `pass`
+  - Output:
+    ```
+    PASS
+    ```
 
-If you genuinely need to touch a file outside this contract,
-stop and explain in your delivery report under a top-level
-`requested_contract_additions` field. Do not silently expand
-scope — the merge layer will discard surprises and a contract
-violation will block delivery.
+### Human feedback
+
+PM reconsideration (strategy: force-file-touch, approach: fresh, risk: low):
+
+The previous builder found the CTA already present from an earlier run and skipped modifying static/index.html, so the merge layer saw no diff for that file and rejected the delivery. You MUST make an actual edit to static/index.html in this run — even if the CTA is already there, rewrite or refine it so the file appears in git diff. The merge contract requires the declared file to be modified in this run's commit, not just present in the repo.
+
+### What you delivered last time
+
+- Status: `delivered`
+- Files changed: `static/index.html`
+- Agent's own acceptance result: `pass`
+
+### Your task now
+
+1. Read the feedback and evidence above carefully.
+2. Identify what needs to change in your existing code.
+3. Make the **minimum** changes needed to fix the issues — do
+   NOT rewrite everything.
+4. Re-run the acceptance commands to verify the fix.
+5. Output a fresh delivery report JSON.
