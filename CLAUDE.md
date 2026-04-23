@@ -362,9 +362,9 @@ No deliveries yet.
 
 ## Your task
 
-Read the spec file at: /Users/saber/Development/daybook-master/daybook-test-lang-app-2/.daybook/specs/8/spec.md
+Read the spec file at: /Users/saber/Development/daybook-master/daybook-test-lang-app-2/.daybook/specs/1/spec.md
 Build everything it requires in this worktree.
-Use port 8100 for any servers. Database at /tmp/daybook-runs/5b5d208d/app.db.
+Use port 8100 for any servers. Database at /tmp/daybook-runs/49c14392/app.db.
 
 ## Acceptance command rules
 
@@ -557,9 +557,9 @@ human.
 
 ## Environment (set by Daybook — use these)
 
-DB_PATH=/tmp/daybook-runs/5b5d208d/app.db — your database goes here
+DB_PATH=/tmp/daybook-runs/49c14392/app.db — your database goes here
 PORT=8100 — use this for any servers
-TEMP_DIR=/tmp/daybook-runs/5b5d208d/tmp — use this for temporary files
+TEMP_DIR=/tmp/daybook-runs/49c14392/tmp — use this for temporary files
 
 Read these with os.environ.get('DB_PATH', ...) in your code.
 The verifier will test your code with DIFFERENT values for these.
@@ -571,11 +571,12 @@ A cheap pre-screen produced these observations. Consider them but
 use your own judgment — the spec is the source of truth.
 
 - Risk: low
-- Reason: Small, isolated UI change with clear acceptance criteria, no backend dependencies, and low delivery risk.
-- Phase alignment: current=Phase 1–2: Foundation (auth/db) and core features (words/quiz/progress), spec=Marketing/Branding (external company CTA link), aligned=False
+- Reason: Simple, low-risk HTML/CSS change with clear acceptance criteria; no backend dependencies; only requires static/index.html to exist with topbar header.
+- Phase alignment: current=Phase 1-2: Foundation (auth/db) and core features (words/quiz/progress), spec=Marketing/Branding (external company CTA link), aligned=False
 - Suggestions:
-  - Verify static/index.html exists and contains a <header class="topbar"> element before building
-  - Consider documenting the styling approach (which CSS variables to reuse for the pill button)
+  - Verify static/index.html exists and contains <header class="topbar"> before building
+  - Consider reusing --text or --border CSS variables for the pill styling to maintain consistency with existing dark theme
+  - Test mobile responsiveness at <600px viewport to ensure CTA remains visible (not just display:none)
 
 ## Expected changes (from spec contract)
 
