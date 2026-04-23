@@ -362,9 +362,9 @@ No deliveries yet.
 
 ## Your task
 
-Read the spec file at: /Users/saber/Development/daybook-master/daybook-test-lang-app-2/.daybook/specs/3/spec.md
+Read the spec file at: /Users/saber/Development/daybook-master/daybook-test-lang-app-2/.daybook/specs/7/spec.md
 Build everything it requires in this worktree.
-Use port 8100 for any servers. Database at /tmp/daybook-runs/c2350745/app.db.
+Use port 8100 for any servers. Database at /tmp/daybook-runs/09f040fe/app.db.
 
 ## Acceptance command rules
 
@@ -557,9 +557,9 @@ human.
 
 ## Environment (set by Daybook — use these)
 
-DB_PATH=/tmp/daybook-runs/c2350745/app.db — your database goes here
+DB_PATH=/tmp/daybook-runs/09f040fe/app.db — your database goes here
 PORT=8100 — use this for any servers
-TEMP_DIR=/tmp/daybook-runs/c2350745/tmp — use this for temporary files
+TEMP_DIR=/tmp/daybook-runs/09f040fe/tmp — use this for temporary files
 
 Read these with os.environ.get('DB_PATH', ...) in your code.
 The verifier will test your code with DIFFERENT values for these.
@@ -571,7 +571,7 @@ A cheap pre-screen produced these observations. Consider them but
 use your own judgment — the spec is the source of truth.
 
 - Risk: low
-- Reason: Trivial one-line footer text addition with clear acceptance criteria and no dependencies.
+- Reason: Trivial frontend-only change with clear acceptance criteria and no dependencies, safe to proceed.
 - Phase alignment: current=Phase 2: Core features (parallel), spec=Branding/independent, aligned=True
 
 ## Expected changes (from spec contract)
